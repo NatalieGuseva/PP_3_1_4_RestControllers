@@ -11,13 +11,13 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import ru.kata.spring.boot_security.demo.service.UserService;
+import ru.kata.spring.boot_security.demo.service.UserDetailServiceImpl;
 
 @Configuration
 public class WebSecurityConfig {
 
     @Autowired
-    private UserService userService;
+    private UserDetailServiceImpl userDetailServiceImpl;
 
     @Autowired
     private SuccessUserHandler successUserHandler;
@@ -31,8 +31,8 @@ public class WebSecurityConfig {
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
-        authProvider.setUserDetailsService(userService);
         authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setUserDetailsService(userDetailServiceImpl);
         return authProvider;
     }
 

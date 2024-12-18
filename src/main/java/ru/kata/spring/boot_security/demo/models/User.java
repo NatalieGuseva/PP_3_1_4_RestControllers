@@ -19,7 +19,11 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String username;
+    private String firstname;
+
+    private String lastname;
+
+    private Byte age;
 
     private String password;
 
@@ -38,23 +42,46 @@ public class User implements UserDetails {
 
     }
 
-    public User(String username, String password, String email, Set<Role> roles) {
-        this.username = username;
+    public User(String firstname, String lastname, Byte age, String password, String email, Set<Role> roles) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.age = age;
         this.password = password;
         this.email = email;
         this.roles = roles;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getFirstName() {
+        return firstname;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setFirstName(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getLastName() {
+        return lastname;
+    }
+
+    public void setLastName(String lastname) {
+        this.lastname = lastname;
+    }
+
+
+    public Byte getAge() {
+        return age;
+    }
+
+    public void setAge(Byte age) {
+        this.age = age;
     }
 
     @Override
@@ -66,9 +93,18 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
     @Override
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return firstname;
     }
 
     public void setPassword(String password) {
