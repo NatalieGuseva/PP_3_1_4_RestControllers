@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.repo.RoleRepo;
-import ru.kata.spring.boot_security.demo.repo.UserRepo;
+import ru.kata.spring.boot_security.demo.repository.RoleRepo;
+import ru.kata.spring.boot_security.demo.repository.UserRepo;
 
 import java.util.Arrays;
 import java.util.Collections;

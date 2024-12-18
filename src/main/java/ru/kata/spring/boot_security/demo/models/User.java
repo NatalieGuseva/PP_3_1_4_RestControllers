@@ -1,6 +1,11 @@
 package ru.kata.spring.boot_security.demo.models;
 
+
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.LazyCollection;
@@ -9,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -19,14 +25,18 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(unique = true, nullable = false)
+    @NotEmpty(message = "First name should not be empty")
+    @Size(max = 32, message = "First name should be shorter than 32 characters")
     private String firstname;
-
+    @NotEmpty(message = "Last name should not be empty")
+    @Size(max = 32, message = "Last name should be shorter than 32 characters")
     private String lastname;
-
+    @Min(value = 0, message = "Age should be greater than 0")
     private Byte age;
-
+    @NotEmpty(message = "Password should not be empty")
     private String password;
-
+    @NotEmpty(message = "Email should not be empty")
+    @Email(message = "Email should be valid")
     private String email;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -36,6 +46,7 @@ public class User implements UserDetails {
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @NotEmpty
     private Set<Role> roles;
 
     public User() {
@@ -137,5 +148,9 @@ public class User implements UserDetails {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String rolesToString() {
+        return roles.stream().map(c -> c.toString().replaceAll("ROLE_|\\\\|[|\\\\]|", "")).collect(Collectors.joining(", "));
     }
 }

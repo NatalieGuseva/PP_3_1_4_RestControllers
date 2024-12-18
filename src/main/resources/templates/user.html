@@ -9,27 +9,16 @@
 </head>
 <body>
 <div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid d-flex justify-content-between">
-            <span>
-                <b class="text-white" th:text="${#authentication.name}"></b>
-                <span class="text-white">with roles:
-                    <span th:each="auth : ${#authentication.authorities}"
-                          th:text="${#strings.replace(auth.authority, 'ROLE_', '') + ' '}"></span></span>
-            </span>
-            <a class="btn btn-link text-white-50 text-decoration-none" th:href="@{/logout}">Logout</a>
-        </div>
+    <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand" th:text="${user.email} + ' with roles: ' + ${user.rolesToString()}" href="#">email and
+            role</a>
+        <a th:href="@{/logout}" class="btn btn-link text-white-50">Logout</a>
     </nav>
 </div>
 <div class="container-fluid bg-light">
     <div class="row">
         <div class="col-md-2 p-0 pt-2">
-            <div th:if="${hasRole}">
-                <a th:href="@{/admin}">
-                    <button class="btn btn-link text-start w-100 text-decoration-none">Admin</button>
-                </a>
-            </div>
-            <a th:href="@{/user}">
+            <a>
                 <button class="btn btn-primary w-100 text-start">User</button>
             </a>
         </div>
@@ -41,26 +30,15 @@
                     <table class="table table-striped">
                         <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Age</th>
-                            <th>Email</th>
-                            <th>Role</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">First Name</th>
+                            <th scope="col">Last Name</th>
+                            <th scope="col">Age</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Role</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        <tr>
-                            <td th:text="${user.getId()}"></td>
-                            <td th:text="${user.getFirstName()}"></td>
-                            <td th:text="${user.getLastName()}"></td>
-                            <td th:text="${user.getAge()}"></td>
-                            <td th:text="${user.getEmail()}"></td>
-                            <td><span th:each="authority : ${user.getAuthorities()}"
-                                      th:text="${#strings.replace(authority, 'ROLE_', '') + ' '}"></span>
-                            </td>
-                        </tr>
-                        </tbody>
+                        <tbody id="about-user"></tbody>
                     </table>
                 </div>
             </div>
@@ -73,5 +51,6 @@
 <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
         crossorigin="anonymous"></script>
+<script src="main.js"></script>
 </body>
 </html>
