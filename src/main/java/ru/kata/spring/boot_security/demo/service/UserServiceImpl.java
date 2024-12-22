@@ -1,79 +1,84 @@
 package ru.kata.spring.boot_security.demo.service;
 
-
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.kata.spring.boot_security.demo.models.Role;
-import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.repository.UserRepo;
+import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepo userRepo;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userDao;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    public UserServiceImpl(UserRepository userDao, PasswordEncoder passwordEncoder) {
+        this.userDao = userDao;
+        this.passwordEncoder = passwordEncoder;
 
-    @Override
-    public List<User> getAllUsers() {
-        return userRepo.findAll();
     }
 
     @Override
-    public User getUserById(Long id) {
-        return userRepo.findById(id).orElse(null);
+    public User findUserById(Long userId) {
+        Optional<User> userFromDb = userDao.findById(userId);
+        return userFromDb.orElse(new User());
     }
 
+    @Override
+    public List<User> findAllUsers() {
+        return userDao.findAll();
+    }
+
+    @Override
     @Transactional
-    @Override
-    public User saveUser(User existingUser, User user) {
-        if (existingUser != null && (user.getPassword() == null || user.getPassword().isEmpty())) {
-            user.setPassword(existingUser.getPassword());
-        } else {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-        if (existingUser != null) {
-            user.setId(existingUser.getId());
-        }
-        if (existingUser != null && (user.getAuthorities() == null || user.getAuthorities().isEmpty())) {
-            user.setRoles((Set<Role>) existingUser.getAuthorities());
-        }
-        if (existingUser != null && (user.getFirstName() == null || user.getFirstName().isEmpty())) {
-            user.setFirstName(existingUser.getFirstName());
-        }
-        if (existingUser != null && (user.getLastName() == null || user.getLastName().isEmpty())) {
-            user.setLastName(existingUser.getLastName());
-        }
-        if (existingUser != null && (user.getEmail() == null || user.getEmail().isEmpty())) {
-            user.setEmail(existingUser.getEmail());
-        }
-        if (existingUser != null && (user.getAge() == null)) {
-            user.setAge(existingUser.getAge());
-        }
-        return userRepo.save(user);
+    public void saveUser(User user) {
+        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        user.setRoles(user.getRoles());
+        userDao.save(user);
     }
 
+    @Override
     @Transactional
-    @Override
-    public void deleteUser(User user) {
-        userRepo.delete(user);
+    public boolean updateUser(Long id, User updatedUser) {
+        Optional<User> userFromDb = userDao.findById(id);
+        if (userFromDb.isPresent()) {
+            User existingUser = userFromDb.get();
+            // Обновляем поля пользователя
+            existingUser.setFirstName(updatedUser.getFirstName());
+            existingUser.setLastName(updatedUser.getLastName());
+            existingUser.setEmail(updatedUser.getEmail());
+            existingUser.setAge(updatedUser.getAge());
+            existingUser.setRoles(updatedUser.getRoles());
+            // Обновляем пароль, если он был изменен
+            if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
+                existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+            }
+            userDao.save(existingUser);
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public User getUserByFirstname(String name) {
-        return userRepo.findByFirstname(name);
+    @Transactional
+    public boolean deleteUser(Long userId) {
+        if (userDao.findById(userId).isPresent()) {
+            userDao.deleteById(userId);
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public Optional<User> getUserByEmail(String email) {
-        return userRepo.findByEmail(email);
+    public User findByEmail(String email) {
+        return userDao.findByEmail(email);
     }
 }
+
